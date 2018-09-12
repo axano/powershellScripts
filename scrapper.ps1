@@ -11,7 +11,7 @@
 FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
-powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://bit.ly/1kEgbuH')"
+powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')"
 
 .SYNOPSIS
 
