@@ -1,9 +1,9 @@
 #############################################################################################################
-###																										  ###
-### 		Information scrapper : Post exploitation information scrapper  powershell script			  ###	
-###																										  ###		
-### 		By AXANO																					  ###	
-###																										  ###
+###																										                                                                             ###
+### 		Information scrapper : Post exploitation information scrapper  powershell script			                 ###	
+###																										                                                                             ###		
+### 		By AXANO																					                                                                       ###	
+###																										                                                                             ###
 #############################################################################################################
 
 <#
