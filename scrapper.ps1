@@ -10,7 +10,7 @@
 FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
-powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')" | Format-Table -Wrap -AutoSize
+Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')
 .SYNOPSIS
 .EXAMPLE
 .EXAMPLE
