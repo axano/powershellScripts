@@ -460,7 +460,7 @@ function mail($messageBody){
 	$job = start-Job -scriptblock $scriptBlock -Name "mailer.exe"
 	Sleep 1
 	### Checks if mailer is running
-	$results += "`nMailer status. `n"
+	$results = "`nMailer status. `n"
 	if($job.state -eq "Running"){
 		$results += "Mailer is Running..."
 	}else {
