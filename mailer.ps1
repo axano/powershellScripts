@@ -87,3 +87,5 @@ function mail($messageBody){
 	###Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command $scriptBlock"
 	$results += "`n"
 	$results
+	while($true)
+	{sleep 1}
