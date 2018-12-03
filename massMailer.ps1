@@ -20,7 +20,7 @@ $smtpServer = "smtp.scarlet.be"
 
 $msg.To.Add($toEmail) 
  
- $msg.subject = "SMTP Test"
+ $msg.subject = "Invitation"
 
 
  $msg.IsBodyHTML = $true
